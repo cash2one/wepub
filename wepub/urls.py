@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+
+from handlers.base import MainHandler
+from handlers.app import AppHandler
+from handlers.node import NodeHandler, NodeGroupHandler
+from handlers.task import TaskHandler, JobHandler
+
+
+url_patterns = [
+    (r"/", MainHandler),
+    (r"/app", AppHandler),
+    (r"/app/(\d+)$", AppHandler),
+    (r"/node", NodeHandler),
+    (r"/node/(\d+)$", NodeHandler),
+    (r"/nodegroup", NodeGroupHandler),
+    (r"/nodegroup/(\d+)$", NodeGroupHandler),
+    (r"/task", TaskHandler),
+    (r"/task/(\d+)$", TaskHandler),
+    (r"/job", JobHandler),
+    (r"/job/(\d+)$", JobHandler),
+]
