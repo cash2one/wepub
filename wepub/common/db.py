@@ -12,7 +12,7 @@ class MySQL(object):
 queries = {
     'SELECT': 'SELECT %s FROM %s WHERE %s',
     'SELECT_ALL': 'SELECT %s FROM %s',
-    'INSERT': 'INSERT INTO %s VALUES(%s)',
+    'INSERT': 'INSERT OR REPLACE INTO %s VALUES(%s)',
     'UPDATE': 'UPDATE %s SET %s WHERE %s',
     'DELETE': 'DELETE FROM %s where %s',
     'DELETE_ALL': 'DELETE FROM %s',
@@ -97,40 +97,15 @@ class SQLite(object):
         self.close(self.write(query))
 
 
-class Table(SQLite):
-
-    def __init__(self, table_name, values):
-        super(Table, self).__init__()
-        self.create_table(table_name, values)
-        self.table_name = table_name
-
-    def select(self, *args, **kwargs):
-        return super(Table, self).select([self.table_name], *args, **kwargs)
-
-    def select_all(self, *args):
-        return super(Table, self).select_all([self.table_name], *args)
-
-    def insert(self, *args):
-        return super(Table, self).insert(self.table_name, *args)
-
-    def update(self, set_args, **kwargs):
-        return super(Table, self).update(self.table_name, set_args, **kwargs)
-
-    def delete(self, **kwargs):
-        return super(Table, self).delete(self.table_name, **kwargs)
-
-    def delete_all(self):
-        return super(Table, self).delete_all(self.table_name)
-
-    def drop(self):
-        return super(Table, self).drop_table(self.table_name)
 
 if __name__ == '__main__':
-    apptable = Table('app', ['name TEXT', 'version TEXT',
+    apptable = SQLite('app', ['name TEXT UNIQUE PRIMARY KEY', 'version TEXT',
                              'platform TEXT', 'packagesource TEXT',
                              'administrator TEXT'])
+    apptable.drop()
     #  apptable.insert('container_mointor', '0.0.7', 'el6.x86_64',
                     #  'container-monitor-agent-0.0.7-1.x86_64.rpm', 'denglj')
-    ret = apptable.select_all('*')
-    print ret.fetchall()
-    ret.close()
+    #  ret = apptable.select_all('*')
+    #  s =  ret.fetchall()
+    #  ret.close()
+    #  print s

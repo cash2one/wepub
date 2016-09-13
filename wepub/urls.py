@@ -11,13 +11,13 @@ from handlers.task import TaskHandler, JobHandler
 url_patterns = [
     (r"/", MainHandler),
     (r"/app", AppHandler),
-    (r"/app/(\d+)$", AppHandler),
+    (r"/app/(\w+)$", AppHandler),
     (r"/node", NodeHandler),
-    (r"/node/(\d+)$", NodeHandler),
+    (r"/node/(\w+)$", NodeHandler),
     (r"/nodegroup", NodeGroupHandler),
-    (r"/nodegroup/(\d+)$", NodeGroupHandler),
+    (r"/nodegroup/(\w+)$", NodeGroupHandler),
     (r"/task", TaskHandler),
-    (r"/task/(\d+)$", TaskHandler),
+    (r"/task/(\w+)$", TaskHandler),
     (r"/job", JobHandler),
-    (r"/job/(\d+)$", JobHandler),
+    (r"/job/(\w+)$", JobHandler),
 ]

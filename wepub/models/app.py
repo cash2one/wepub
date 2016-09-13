@@ -3,13 +3,11 @@
 
 
 from .base import Model
-from .base import Float, Integer, String, RegexString
+from .base import String, RegexString
 
 
 class App(Model):
-    _id = Integer()
     name = RegexString(pat='[_a-zA-Z]+$')
-    cname = String()
     version = String()
     platform = String()
     packagesource = String()
@@ -23,6 +21,3 @@ class App(Model):
             # valid every field here
             data[key] = val
         return data
-
-    def create(self):
-        self.save(self.valid_data)

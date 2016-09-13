@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import logging
+import traceback
+
 from tornado.escape import json_decode
 
 from wepub.common import RESTfulHandler
@@ -18,10 +21,28 @@ class AppHandler(RESTfulHandler):
 
         在数据库中新增一条App数据，若创建App成功则返回状态码201，
         创建失败则返回400，遇到内部错误返回500.
+
+        eg:
+        curl -H "Content-Type: application/json" -X POST -d '{
+            "name":"container_monitor",
+            "version":"0.0.7",
+            "platform":"el6.x84_64",
+            "packagesource":"a url to package",
+            "administrator":"denglj"}' http://127.0.0.1:8000/app
         """
-        appdata = json_decode(self.request.body)
-        app = App(**appdata)
-        app.create()
+        try:
+            appdata = json_decode(self.request.body)
+            # when create an `App` object, will automaticly save data to db
+            app = App(**appdata)
+            ret = app.valid_data
+            self.set_status(201)
+            logging.info("Create App: %s" % ret)
+        except:
+            ret = traceback.format_exc()
+            self.set_status(400)
+            logging.error("Create App Error: %s" % ret)
+        finally:
+            self.finish(ret)
 
     def gets(self, appid):
         """
@@ -30,7 +51,22 @@ class AppHandler(RESTfulHandler):
         客户端根据appid读取一条App数据，若正常返回200和App数据，若
         根据该appid未找到数据则返回404，内部错误返回500.
         """
-        pass
+        try:
+            ret = App.get_data_by_id(_id=appid)
+            if ret is None:
+                ret = {"status": 404, "message": "App Not Found!",
+                       "appid": appid}
+                self.set_status(404)
+                logging.warning("App Not Found: %s" % appid)
+            else:
+                self.set_status(200)
+                logging.info("Query App: %s, %s" % (appid, ret))
+        except:
+            ret = traceback.format_exc()
+            self.set_status(500)
+            logging.error("Get App Error: %s, %s" % (appid, ret))
+        finally:
+            self.finish(ret)
 
     def lists(self):
         """
@@ -38,7 +74,21 @@ class AppHandler(RESTfulHandler):
 
         请求未指明appid时，返回所有App信息，需考虑分页
         """
-        pass
+        try:
+            ret = App.all_data()
+            if not ret:
+                ret = {"status": 404, "message": "There has no App!"}
+                self.set_status(404)
+                logging.warning("App collection Not Found.")
+            else:
+                self.set_status(200)
+                logging.info("Query App collection: %s" % ret)
+        except:
+            ret = traceback.format_exc()
+            self.set_status(500)
+            logging.error("Get App collection Error: %s" % ret)
+        finally:
+            self.finish(ret)
 
     def update(self, appid):
         """

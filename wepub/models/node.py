@@ -6,13 +6,12 @@ from .base import Float, Integer, String, RegexString
 
 
 class Node(Model):
-    _id = Integer()
+    hostname = String()
+    category = RegexString(pat='(\bcontainer\b)|(\bphysical\b)')
     clastername = RegexString(pat='[a-zA-Z]+$')
     clasterid = String()
-    nodename = String()
     saltid = String()
     ipaddr = String()
-    category = String()
 
     @property
     def valid_data(self):
@@ -28,12 +27,10 @@ class Node(Model):
 
 
 class NodeGroup(Model):
-    _id = Integer()
-    clastername = RegexString(pat='[a-zA-Z]+$')
-    clasterid = String()
-    nodename = String()
-    saltid = String()
-    ipaddr = String()
+    name = RegexString(pat='[a-zA-Z]+$')
+    cname = String()
+    category = String()
+    nodes = String()
 
     @property
     def valid_data(self):
