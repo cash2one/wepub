@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from datetime import datetime
 import re
 from bisect import insort
+
 from funcsigs import Parameter, Signature
+
+from wepub.common.db import
 
 
 class Descriptor(object):
@@ -88,11 +92,16 @@ class Regex(Descriptor):
 
     def __set__(self, instance, value):
         if not self.pat.match(value):
-            raise ValueError('Invalid string')
+            raise ValueError('Invalid string, must comply with'
+                             'regex %s' % self.pat.pattern)
         super(Regex, self).__set__(instance, value)
 
 
 class SizedRegexString(SizedString, Regex):
+    pass
+
+
+class RegexString(String, Regex):
     pass
 
 # Model definition code
@@ -126,6 +135,13 @@ class Model(object):
         bound = self.__signature__.bind(*args, **kwargs)
         for name, val in bound.arguments.items():
             setattr(self, name, val)
+        self.timestamp = datetime.utcnow()
+
+    def valid_data(self):
+        raise NotImplementedError("Must Implement `valid_data` method")
+
+    def save(self):
+        pass
 
 if __name__ == '__main__':
     class Stock(Model):
