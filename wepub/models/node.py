@@ -7,9 +7,9 @@ from .base import Float, Integer, String, RegexString
 
 class Node(Model):
     hostname = String()
-    category = RegexString(pat='(\bcontainer\b)|(\bphysical\b)')
-    clastername = RegexString(pat='[a-zA-Z]+$')
-    clasterid = String()
+    category = RegexString(pat=r'(\bcontainer\b)|(\bphysical\b)')
+    clustername = RegexString(pat=r'[-_a-zA-Z]+$')
+    clusterid = String()
     saltid = String()
     ipaddr = String()
 
@@ -27,7 +27,7 @@ class Node(Model):
 
 
 class NodeGroup(Model):
-    name = RegexString(pat='[a-zA-Z]+$')
+    name = RegexString(pat=r'[-_a-zA-Z]+$')
     cname = String()
     category = String()
     nodes = String()

@@ -37,7 +37,6 @@ class Typed(Descriptor):
         super(Typed, self).__set__(instance, value)
 
 
-# Specialized types
 class Integer(Typed):
     ty = int
 
@@ -50,7 +49,6 @@ class String(Typed):
     ty = basestring
 
 
-# Value checking
 class Positive(Descriptor):
     def __set__(self, instance, value):
         if value < 0:
@@ -58,7 +56,6 @@ class Positive(Descriptor):
         super(Positive, self).__set__(instance, value)
 
 
-# More specialized types
 class PosInteger(Integer, Positive):
     pass
 
@@ -67,7 +64,6 @@ class PosFloat(Float, Positive):
     pass
 
 
-# Length checking
 class Sized(Descriptor):
 
     def __init__(self, *args, **kwargs):
@@ -84,7 +80,6 @@ class SizedString(Sized, String):
     pass
 
 
-# Pattern matching
 class Regex(Descriptor):
     def __init__(self, *args, **kwargs):
         self.pat = re.compile(kwargs.pop('pat'))
@@ -103,8 +98,6 @@ class SizedRegexString(SizedString, Regex):
 
 class RegexString(String, Regex):
     pass
-
-# Model definition code
 
 
 def make_signature(names):
@@ -186,6 +179,13 @@ class Model(object):
             ret = cur.fetchone()
             cur.close()
             return ret
+
+    @classmethod
+    def update_table(cls, set_args, conds):
+        tablename = cls.__name__.lower()
+        cur = cls.__db__.update([tablename], '*', set_args, conds)
+        return cur
+
 
 if __name__ == '__main__':
     class Stock(Model):

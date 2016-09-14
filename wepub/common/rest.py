@@ -8,7 +8,7 @@ from tornado.escape import json_encode
 class RESTfulHandler(tornado.web.RequestHandler):
 
     methods = ("lists", "gets", "create", "update", "delete",
-               "update_collection", "delete_collection")
+               "update_collection", "delete_collection", "start")
 
     def __init__(self, application, request, **kwargs):
         super(RESTfulHandler, self).__init__(application, request, **kwargs)
@@ -30,7 +30,8 @@ class RESTfulHandler(tornado.web.RequestHandler):
         if resource_id is None:
             return self.create()
         else:
-            raise tornado.web.HTTPError(500)
+            return self.start(resource_id)
+            #  raise tornado.web.HTTPError(500)
 
     def put(self, resource_id=None):
         if resource_id is None:

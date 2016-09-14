@@ -7,7 +7,7 @@ from .base import String, RegexString
 
 
 class App(Model):
-    name = RegexString(pat='[_a-zA-Z]+$')
+    name = RegexString(pat=r'[-_a-zA-Z]+$')
     version = String()
     platform = String()
     packagesource = String()

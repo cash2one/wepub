@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 import sqlite3
-from tornado.options import options
+#  from tornado.options import options
 
 
 class MySQL(object):
@@ -97,15 +97,5 @@ class SQLite(object):
         self.close(self.write(query))
 
 
-
 if __name__ == '__main__':
-    apptable = SQLite('app', ['name TEXT UNIQUE PRIMARY KEY', 'version TEXT',
-                             'platform TEXT', 'packagesource TEXT',
-                             'administrator TEXT'])
-    apptable.drop()
-    #  apptable.insert('container_mointor', '0.0.7', 'el6.x86_64',
-                    #  'container-monitor-agent-0.0.7-1.x86_64.rpm', 'denglj')
-    #  ret = apptable.select_all('*')
-    #  s =  ret.fetchall()
-    #  ret.close()
-    #  print s
+    apptable = SQLite().drop_table('app')
