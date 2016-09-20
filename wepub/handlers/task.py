@@ -33,9 +33,6 @@ class TaskHandler(RESTfulHandler):
         try:
             taskdata = json_decode(self.request.body)
             # when create an `Task` object, will automaticly save data to db
-            # TODO: task有字段记录任务结束时间，新建任务时按情理讲是无需传入
-            # 结束时间的，但因为用metaclass封装了对象的创建和写入数据库的过程，
-            # 对象的所有属性（除了默认添加的timestamp外，其余属性均需）
             task = Task(**taskdata)
             ret = task.valid_data
             self.set_status(201)
