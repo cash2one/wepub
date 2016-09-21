@@ -4,6 +4,8 @@
 import logging
 import traceback
 
+from tornado import gen
+from tornado import web
 from tornado.escape import json_decode
 
 from wepub.common import RESTfulHandler
@@ -44,6 +46,7 @@ class TaskHandler(RESTfulHandler):
         finally:
             self.finish(ret)
 
+    @gen.coroutine
     def start(self, taskid):
         """
         HTTP 方法：POST
@@ -51,7 +54,7 @@ class TaskHandler(RESTfulHandler):
         根据taskid启动任务
         """
         try:
-            ret = Task.execute(taskid)
+            ret = yield Task.execute(taskid)
             if ret is None:
                 ret = {"status": 404, "message": "Task Start Failed!",
                        "taskid": taskid}

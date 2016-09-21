@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-
+from tornado import gen
 from tornado.escape import json_decode
 
 from .base import Model
@@ -53,8 +53,8 @@ class Task(Model):
         return data
 
     @classmethod
+    @gen.coroutine
     def execute(cls, taskid):
-        # TODO: 这里执行任务的方式改成异步的，可以一次发出多个请求不必阻塞等待每一个完成
         taskfields = sorted(['_id', 'timestamp', 'name', 'appid', 'nodes',
                        'nodes_success', 'nodes_failed', 'jobs',
                        'status', 'creator', 'starttime', 'endtime'])
@@ -68,6 +68,6 @@ class Task(Model):
         ss = Salt(salt.client.LocalClient())
         ret = {}
         for jobid, jobdct in jobs:
-            _ret = ss.cmd(taskdct['nodes'], jobdct['cmdtype'], [jobdct['cmd']])
+            _ret = yield ss.cmd(taskdct['nodes'].split(','), jobdct['cmdtype'], [jobdct['cmd']], expr_form='list')
             ret[jobid] = _ret
-        return ret
+        raise gen.Return(ret)
