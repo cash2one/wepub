@@ -27,7 +27,7 @@ class Node(Model):
 
 
 class NodeGroup(Model):
-    name = RegexString(pat=r'[-_a-zA-Z]+$')
+    name = RegexString(pat=r'[-0-9_a-zA-Z]+$')
     cname = String()
     category = String()
     nodes = String()

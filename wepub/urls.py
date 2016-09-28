@@ -5,7 +5,7 @@
 from handlers.base import MainHandler
 from handlers.app import AppHandler
 from handlers.node import NodeHandler, NodeGroupHandler
-from handlers.task import TaskHandler, JobHandler
+from handlers.task import TaskHandler, JobHandler, RDSTaskHandler
 
 
 url_patterns = [
@@ -16,8 +16,10 @@ url_patterns = [
     (r"/node/(\w+)$", NodeHandler),
     (r"/nodegroup", NodeGroupHandler),
     (r"/nodegroup/(\w+)$", NodeGroupHandler),
-    (r"/task", TaskHandler),
+    (r"/task$", TaskHandler),
     (r"/task/(\w+)$", TaskHandler),
     (r"/job", JobHandler),
     (r"/job/(\w+)$", JobHandler),
+    (r"/taskrds$", RDSTaskHandler),
+    (r"/taskrds/(\w+)$", RDSTaskHandler),
 ]

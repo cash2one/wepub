@@ -5,11 +5,11 @@ import logging
 import traceback
 
 from tornado import gen
-from tornado import web
 from tornado.escape import json_decode
 
 from wepub.common import RESTfulHandler
 from wepub.models.task import Task, Job
+from wepub.utils.rds import _get_containers_by_hcluster_name
 
 
 class TaskHandler(RESTfulHandler):
@@ -25,12 +25,10 @@ class TaskHandler(RESTfulHandler):
         创建失败则返回400，遇到内部错误返回500.
 
         eg:
-        curl -H "Content-Type: application/json" -X POST -d '{
-            "name":"install_monitor",
-            "status":"waiting",
-            "cmdtype":"cmd.run",
-            "cmd":"yum install -y container-monitor-agent"
-            }' http://127.0.0.1:8000/task
+        curl -H "Content-Type: application/json" -X POST -d '{"name":"install_monitor",
+        "appid":"b7daa10233a6d1c7","nodes":"devct6","nodes_success":"","nodes_failed":"",
+        "jobs":"c31cd40492d63282", "status":"waiting", "creator":"denglj",
+        "starttime":"2016-09-14 06:30:00", "endtime":""}' http://127.0.0.1:8000/task
         """
         try:
             taskdata = json_decode(self.request.body)
@@ -262,3 +260,28 @@ class JobHandler(RESTfulHandler):
         删除所有Job数据，批量删除
         """
         pass
+
+
+class RDSTaskHandler(TaskHandler):
+
+    def create(self):
+        try:
+            taskdata = json_decode(self.request.body)
+            # when create an `Task` object, will automaticly save data to db
+            hcluster_name = taskdata.pop('hclustername')
+            container_type = taskdata.pop('containertype')
+            nodes = _get_containers_by_hcluster_name(hcluster_name, container_type)
+            # 为了符合Task初始化的数据格式
+            nodes = ','.join([n['containerName'] for n in nodes])
+            taskdata.update({'nodes': nodes})
+
+            task = Task(**taskdata)
+            ret = task.valid_data
+            self.set_status(201)
+            logging.info("Create Task: %s" % ret)
+        except:
+            ret = traceback.format_exc()
+            self.set_status(400)
+            logging.error("Create Task Error: %s" % ret)
+        finally:
+            self.finish(ret)
