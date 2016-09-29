@@ -66,8 +66,13 @@ class Task(Model):
             jobdct = dict(zip(jobfields, Job.get_data_by_id(jobid)))
             jobs.append((jobid, jobdct))
         ss = Salt(salt.client.LocalClient())
+        # 每次并行执行N个节点的任务
+        N = 30
+        nodes = taskdct['nodes'].split(',')
+        nodes = [nodes[x:x+N] for x in xrange(0, len(nodes), N)]
+
         ret = {}
-        for jobid, jobdct in jobs:
-            _ret = yield ss.cmd(taskdct['nodes'].split(','), jobdct['cmdtype'], [jobdct['cmd']], expr_form='list')
-            ret[jobid] = _ret
+        for subnodes in nodes:
+            for jobid, jobdct in jobs:
+                ret[jobid] = yield ss.cmd(subnodes, jobdct['cmdtype'], [jobdct['cmd']], expr_form='list')
         raise gen.Return(ret)
