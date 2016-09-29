@@ -30,7 +30,7 @@ sys.path.insert(0, BASE_DIR)
 define("port", default=8000, help="run on the given port", type=int)
 define("config", default=None, help="tornado config file")
 define("debug", default=False, help="debug mode")
-define("sqlitedb", default="/root/wepub.db", help="database file path")
+define("sqlitedb", default=path(PROJECT_ROOT, 'wepub.db'), help="database file path")
 
 # parse commadline
 tornado.options.parse_command_line()

@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 import sqlite3
-#  from tornado.options import options
+from tornado.options import options
 
 
 class MySQL(object):
@@ -24,8 +24,7 @@ queries = {
 class SQLite(object):
 
     def __init__(self):
-        #  self.data_file = options.sqlitedb
-        self.data_file = '/root/wepub.db'
+        self.data_file = options.sqlitedb
         self.db = sqlite3.connect(self.data_file, check_same_thread=False)
 
     def close(self, cursor=None):
