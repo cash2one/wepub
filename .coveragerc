@@ -1,0 +1,7 @@
+# Test coverage configuration.
+
+[run]
+include = wepub/*
+omit =
+    wepub/tests*
+    tests/*

@@ -1,0 +1,84 @@
+:icons: font
+
+= 作业接口
+
+作业是组成发版任务的可复用的基本单位，底层封装了saltstack命令接口，
+所以一个作业实际上是一条可被saltstack下发到被控端执行的命令。
+
+IMPORTANT: 尽管一个作业可以是一条复杂的shell命令，但本系统希望你能设计尽量简
+单小巧可被复用的命令。一是为了复用，让多个Job可以灵活组合为强大的
+Task；二是为了输出结果尽量简单。
+
+例如，可能是一条检查指定软件包版本的命令`rpm -qa | grep mcluster-manager`。
+
+== 创建作业
+
+URL:: http://10.200.85.88:8000/job
+HTTP Method:: POST
+Request Data Type:: json
+
+安装 Mcluster-manager 作业的请求数据示例：
+[source, json]
+----
+{
+  "name": "mcluster_install",
+  "status": "waiting",
+  "cmdtype": "cmd.run",
+  "cmd": "yum -y install mcluster-manager >>/dev/null"
+}
+----
+
+Request Parameters Introduction::
+[cols="1,2,7", options="header"]
+|===
+|参数
+|是否必须
+|说明
+
+|name
+|是
+|作业名称
+
+|status
+|是
+|作业状态，本字段需重新设计，暂未使用，传值 `waiting` 即可。
+
+|cmdtype
+|是
+|saltstack命令类型，常用值为 `cmd.run`
+
+|cmd
+|是
+|命令内容
+|===
+
+Response::
+上述示例请求发出后，返回如下结果：
+[source, json]
+----
+{
+  "status": "waiting",
+  "name": "mcluster_install",
+  "timestamp": "2016-09-28 08:07:55.843623",
+  "cmd": "yum -y install mcluster-manager >>/dev/null",
+  "cmdtype": "cmd.run",
+  "_id": "20bdf2797991f05e"
+}
+----
+
+返回的数据中，额外增加的字段说明如下：
+[cols="2,8", options="header"]
+|===
+|参数
+|说明
+
+|_id
+|作业在数据库中的唯一编号，如果创建作业的请求参数完全相同时，_id 号不会改变
+
+|timestamp
+|创建作业的时间戳
+|===
+
+== 获取系统中已创建的作业
+URL:: http://10.200.85.88:8000/job
+HTTP Method:: GET
