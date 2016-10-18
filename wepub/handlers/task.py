@@ -105,6 +105,12 @@ class TaskHandler(RESTfulHandler):
                 self.set_status(404)
                 logging.warning("Task collection Not Found.")
             else:
+                ret = {
+                    'draw': 1,
+                    'recordsTotal': len(ret),
+                    'recordsFiltered': len(ret),
+                    'data': ret
+                }
                 self.set_status(200)
                 logging.info("Query Task collection: %s" % ret)
         except:
@@ -219,6 +225,12 @@ class JobHandler(RESTfulHandler):
                 self.set_status(404)
                 logging.warning("Job collection Not Found.")
             else:
+                ret = {
+                    'draw': 1,
+                    'recordsTotal': len(ret),
+                    'recordsFiltered': len(ret),
+                    'data': ret
+                }
                 self.set_status(200)
                 logging.info("Query Job collection: %s" % ret)
         except:

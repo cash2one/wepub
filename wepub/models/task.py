@@ -72,7 +72,10 @@ class Task(Model):
         nodes = [nodes[x:x+N] for x in xrange(0, len(nodes), N)]
 
         ret = {}
-        for subnodes in nodes:
+        for idx, subnodes in enumerate(nodes):
             for jobid, jobdct in jobs:
-                ret[jobid] = yield ss.cmd(subnodes, jobdct['cmdtype'], [jobdct['cmd']], expr_form='list')
+                ret[str(idx)+'_'+jobid] = yield ss.cmd(subnodes,
+                                                           jobdct['cmdtype'],
+                                                           [jobdct['cmd']],
+                                                           expr_form='list')
         raise gen.Return(ret)

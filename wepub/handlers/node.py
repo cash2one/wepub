@@ -74,6 +74,12 @@ class NodeHandler(RESTfulHandler):
                 self.set_status(404)
                 logging.warning("Node collection Not Found.")
             else:
+                ret = {
+                    'draw': 1,
+                    'recordsTotal': len(ret),
+                    'recordsFiltered': len(ret),
+                    'data': ret
+                }
                 self.set_status(200)
                 logging.info("Query Node collection: %s" % ret)
         except:
@@ -131,7 +137,6 @@ class NodeGroupHandler(RESTfulHandler):
         """
         try:
             ndgroupdata = json_decode(self.request.body)
-            # when create an `Node` object, will automaticly save data to db
             ndgroup = NodeGroup(**ndgroupdata)
             ret = ndgroup.valid_data
             self.set_status(201)
@@ -180,6 +185,12 @@ class NodeGroupHandler(RESTfulHandler):
                 self.set_status(404)
                 logging.warning("NodeGroup collection Not Found.")
             else:
+                ret = {
+                    'draw': 1,
+                    'recordsTotal': len(ret),
+                    'recordsFiltered': len(ret),
+                    'data': ret
+                }
                 self.set_status(200)
                 logging.info("Query NodeGroup collection: %s" % ret)
         except:

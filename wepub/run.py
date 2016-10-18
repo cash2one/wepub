@@ -17,6 +17,8 @@ class MainApplication(tornado.web.Application):
 
     def __init__(self):
         logging.info("init MainApplication with settings: %s" % str(settings))
+        url_patterns.append((r"/(.*)", tornado.web.StaticFileHandler,
+                             dict(path=settings['static_path'])))
         tornado.web.Application.__init__(self, url_patterns, **settings)
 
 
