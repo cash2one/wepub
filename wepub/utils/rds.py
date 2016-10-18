@@ -9,7 +9,7 @@ from oauth import get_client_id_and_secret
 
 def get_physical_clusters():
     request_header = get_client_id_and_secret()
-    url = 'http://10.154.238.20:8080/api/hcluster?type=RDS'
+    url = 'http://10.176.30.209:18082/api/hcluster?type=RDS'
     request = tornado.httpclient.HTTPRequest(url, method='GET', headers=request_header)
     response = tornado.httpclient.HTTPClient().fetch(request)
     return json_decode(response.body)
@@ -20,7 +20,7 @@ def _get_containers_by_hcluster_name(name, ty):
     for hcluster in physical_cluster_lst:
         if hcluster['hclusterName'] == name:
             hcluster_id = str(hcluster['id'])
-            url = 'http://10.154.238.20:8080/db/containers/{0}?hclusterId={1}'.format(ty, hcluster_id)
+            url = 'http://10.176.30.209:18082/db/containers/{0}?hclusterId={1}'.format(ty, hcluster_id)
             request_header = get_client_id_and_secret()
             request = tornado.httpclient.HTTPRequest(url, method='GET', headers=request_header)
             response = tornado.httpclient.HTTPClient().fetch(request)
@@ -42,4 +42,6 @@ def get_db_containers(hcluster_name):
 if __name__ == '__main__':
     import pprint
     #  pprint.pprint(get_physical_clusters())
-    pprint.pprint(get_vip_containers('MJQ_TEST_Mcluster'))
+    ret = get_db_containers('MJQ_01_Mcluster')
+    print(ret)
+    pprint.pprint(len(ret))
