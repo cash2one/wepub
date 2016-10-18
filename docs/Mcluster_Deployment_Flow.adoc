@@ -1,0 +1,220 @@
+:icons: font
+
+= mcluster-manager 部署流程
+
+== 1. 罗列部署mcluster-manager需要执行的操作及shell命令
+
+  * 移除旧版本
+
+    yum -y remove mcluster-manager >>/dev/null
+
+  * 清除 yum 源缓存
+
+    yum clean all >>/dev/null
+
+  * 安装yum源最新版本 mcluster-manager
+
+    yum -y install mcluster-manager >>/dev/null
+
+  * 检查已安装的版本
+
+    rpm -qa | grep  mcluster-manager
+
+  * 保存原有zookeeper配置信息
+
+    cat /opt/letv/mcluster-manager/api/config/mclusterManager.cnf | grep zkAddress | sed s/zkAddress=//g > /tmp/zkserverip
+
+  * 停止正在运行的mcluster-manager服务
+
+    service mcluster-manager stop >>/dev/null
+
+  * 启动mcluster-manager服务
+
+    service mcluster-manager stop >>/dev/null
+
+  * 重启mcluster-manager服务
+
+    service mcluster-manager restart >>/dev/null
+
+  * 检查mcluster-manager运行状态
+
+    service mcluster-manager status
+
+  * 配置zookeeper信息
+
+    curl -d \"zkAddress=`cat /tmp/zkserverip`&zkPort=2181\" http://127.0.0.1:8888/admin/conf >> /dev/null
+
+  * 等待0.5秒
+
+    sleep 0.5
+
+== 2. 创建作业并获得Job的 _id
+
+参考说明文档 link:Job_API.adoc[Job API] 。
+
+TIP: 部署mcluster-manager所需用的Job已经创建好了，直接使用即可。
+
+== 3. 创建部署任务并获取Task的 _id
+=== 3.1 编排升级VIP节点的作业序列
+* *升级流程*
+. 移除旧版本 job_id: e09d25480944f374
+. 清除 yum 源缓存 job_id: 8fe3ca224d8f7529
+. 安装新版本 job_id: 20bdf2797991f05e
+. 检查已安装的版本 job_id: 3b5f5a4231c9ee9d
+
+* *VIP节点升级作业序列*：
+
+  e09d25480944f374,8fe3ca224d8f7529,20bdf2797991f05e,3b5f5a4231c9ee9d
+
+=== 3.2 编排升级DATA节点的作业序列
+* *升级流程*
+. 保存zookeeper ip: e4971f0b9bff499a
+. 停止mcluster-manager 服务： 6472485f32f63804
+. 移除旧版本: e09d25480944f374
+. 清除 yum 源缓存: 8fe3ca224d8f7529
+. 安装新版本: 20bdf2797991f05e
+. 启动新版服务： c23a16e4d84da1d1
+. 查询运行状态： 3cc8e9c04803df63
+. 等待0.5秒： 78b6caef202b6a3e
+. 替换zookeeper ip：866477b8995d464e
+. 重启新版服务： 215cea08bc397d66
+. 查询服务版本： 3b5f5a4231c9ee9d
+
+* *DATA节点升级作业序列*：
+
+  e4971f0b9bff499a,6472485f32f63804,e09d25480944f374,8fe3ca224d8f7529,20bdf2797991f05e,c23a16e4d84da1d1,3cc8e9c04803df63,78b6caef202b6a3e,866477b8995d464e,215cea08bc397d66,3b5f5a4231c9ee9d
+
+=== 3.3 创建升级VIP节点的任务
+以马驹桥03物理机集群为例。
+
+URL:: http://10.200.85.88:8000/taskrds
+HTTP方法:: POST
+请求参数::
+[source, json]
+----
+{
+  "name": "new_install_mcluster_vip_MJQ_03",
+  "appid": "290d40ace3fe9f90",
+  "nodes": "",
+  "nodes_success": "",
+  "nodes_failed": "",
+  "jobs": "e09d25480944f374,8fe3ca224d8f7529,20bdf2797991f05e,3b5f5a4231c9ee9d",
+  "status": "waiting",
+  "creator": "denglj",
+  "starttime": "2016-10-17 15:30:00",
+  "endtime": "",
+  "hclustername": "MJQ_03_Mcluster",
+  "containertype": "vip"
+}
+----
+
+返回结果::
+[source, json]
+----
+{
+  "status": "waiting",
+  "endtime": "",
+  "jobs": "e09d25480944f374,8fe3ca224d8f7529,20bdf2797991f05e,3b5f5a4231c9ee9d",
+  "name": "new_install_mcluster_vip_MJQ_03",
+  "creator": "denglj",
+  "timestamp": "2016-10-17 07:06:54.709166",
+  "nodes_failed": "",
+  "nodes_success": "",
+  "appid": "290d40ace3fe9f90",
+  "nodes": "d-gbl-779_zcq_test_mjq03_vip-n-1,d-gbl-413_test_me_vip-n-1,d-gbl-912_ExpConfig_vip-n-1,d-gbl-912_AbtestConfig_vip-n-1,d-gbl-993_rtmplive_slave01_vip-n-1,d-gbl-586_clivevrs_vip-n-1,d-gbl-586_clivevrstest_vip-n-1,d-gbl-978_lecamera_vip-n-1,d-gbl-33_mam_lsd_vip-n-1,d-gbl-1015_airflow_vip-n-1,d-gbl-84_cdn_domain_vip-n-1,d-gbl-991_spider_test_vip-n-1,d-gbl-1033_leyibi2_vip-n-1,d-gbl-84_cdn_domain_test_vip-n-1,d-gbl-951_ilive_bill_vip-n-1,d-gbl-915_ipserver1_vip-n-1,d-gbl-1045_lantv_vip-n-1,d-gbl-1048_mms_vip-n-1,d-gbl-667_paycenter_kupai_vip-n-1,d-gbl-667_payment_kupai_vip-n-1,d-gbl-667_sdk_cms_kupai_vip-n-1,d-gbl-985_user_address_vip-n-1,d-gbl-1057_dd_vip-n-1,d-gbl-234_tasktime_vip-n-1,d-gbl-413_ims_vip-n-1,d-gbl-1060_LeMSP_vip-n-1,d-gbl-789_walle_vip-n-1,d-gbl-1006_brandvip_vip-n-1,d-gbl-515_sug_square_vip-n-1,d-gbl-515_apkupgrade_cn_vip-n-1,d-gbl-537_tv_report_vip-n-1,d-gbl-875_bcloud_mjq03_vip-n-1,d-gbl-259_store5_vip-n-1,d-gbl-515_device_bind_vip-n-1,d-gbl-1006_falcon_vip-n-1,d-gbl-1006_evip_vip-n-1,d-gbl-537_mstore_action_vip-n-1,d-gbl-195_asmp_vip-n-1,d-gbl-195_astv_vip-n-1,d-gbl-852_match_vip-n-1,d-gbl-537_ivvi_sso_vip-n-1,d-gbl-537_ivvi_dev_vip-n-1,d-gbl-259_store5_quartz_vip-n-1,d-gbl-1081_csl_h5_vip-n-1,d-gbl-1094_dsj21_vip-n-1,d-gbl-1006_outsite_vip-n-1,d-gbl-982_usergrowth_tv_vip-n-1,d-gbl-413_falcon_links_vip-n-1,d-gbl-1098_leeco_cn_vip-n-1,d-gbl-537_ivvi_dev_guide_vip-n-1,d-gbl-1006_smaug_bm_vip-n-1,d-gbl-1006_outsite_bm_vip-n-1,d-gbl-906_oi_log_vip-n-1,d-gbl-992_fangtest_vip-n-1,d-gbl-965_dts_dev_vip-n-1,d-gbl-33_live_pds_vip-n-1,d-gbl-33_mam_analyze_vip-n-1",
+  "_id": "ca4f1f8e06cce1c8",
+  "starttime": "2016-10-17 15:30:00"
+}
+----
+
+[TIP]
+上述示例得到了升级马驹桥03集群RDS VIP 节点的TASK_ID为：ca4f1f8e06cce1c8。
+在马驹桥03物理集群中RDS VIP节点不变的情况下，可以一直复用此TASK_ID用于升级。
+若RDS集群发生了变化，则需要重新发起创建Task的请求，以从Matrix获取最新的节点信息。
+
+=== 3.4 创建升级DATA节点的任务
+仍以马驹桥03物理机集群为例。
+
+URL:: http://10.200.85.88:8000/taskrds
+HTTP方法:: POST
+请求参数::
+[source, json]
+----
+{
+  "name": "new_install_mcluster_data_MJQ_03",
+  "appid": "290d40ace3fe9f90",
+  "nodes": "",
+  "nodes_success": "",
+  "nodes_failed": "",
+  "jobs": "e4971f0b9bff499a,6472485f32f63804,e09d25480944f374,8fe3ca224d8f7529,20bdf2797991f05e,c23a16e4d84da1d1,3cc8e9c04803df63,78b6caef202b6a3e,866477b8995d464e,215cea08bc397d66,3b5f5a4231c9ee9d",
+  "status": "waiting",
+  "creator": "denglj",
+  "starttime": "2016-10-17 15:30:00",
+  "endtime": "",
+  "hclustername": "MJQ_03_Mcluster",
+  "containertype": "data"
+}
+----
+
+返回结果::
+[source, json]
+----
+{
+  "status": "waiting",
+  "endtime": "",
+  "jobs": "e4971f0b9bff499a,6472485f32f63804,e09d25480944f374,8fe3ca224d8f7529,20bdf2797991f05e,c23a16e4d84da1d1,3cc8e9c04803df63,78b6caef202b6a3e,866477b8995d464e,215cea08bc397d66,3b5f5a4231c9ee9d",
+  "name": "new_install_mcluster_data_MJQ_03",
+  "creator": "denglj",
+  "timestamp": "2016-10-17 07:11:12.880659",
+  "nodes_failed": "",
+  "nodes_success": "",
+  "appid": "290d40ace3fe9f90",
+  "nodes": "d-mcl-779_zcq_test_mjq03-n-1,d-mcl-779_zcq_test_mjq03-n-3,d-mcl-779_zcq_test_mjq03-n-2,d-mcl-413_test_me-n-2,d-mcl-413_test_me-n-1,d-mcl-413_test_me-n-3,d-mcl-912_ExpConfig-n-3,d-mcl-912_ExpConfig-n-1,d-mcl-912_ExpConfig-n-2,d-mcl-912_AbtestConfig-n-1,d-mcl-912_AbtestConfig-n-3,d-mcl-912_AbtestConfig-n-2,d-mcl-993_rtmplive_slave01-n-1,d-mcl-993_rtmplive_slave01-n-2,d-mcl-993_rtmplive_slave01-n-3,d-mcl-586_clivevrs-n-2,d-mcl-586_clivevrs-n-3,d-mcl-586_clivevrs-n-1,d-mcl-586_clivevrstest-n-1,d-mcl-586_clivevrstest-n-2,d-mcl-586_clivevrstest-n-3,d-mcl-978_lecamera-n-1,d-mcl-978_lecamera-n-2,d-mcl-978_lecamera-n-3,d-mcl-33_mam_lsd-n-2,d-mcl-33_mam_lsd-n-3,d-mcl-33_mam_lsd-n-1,d-mcl-1015_airflow-n-1,d-mcl-1015_airflow-n-2,d-mcl-1015_airflow-n-3,d-mcl-84_cdn_domain-n-1,d-mcl-84_cdn_domain-n-2,d-mcl-84_cdn_domain-n-3,d-mcl-991_spider_test-n-1,d-mcl-991_spider_test-n-2,d-mcl-991_spider_test-n-3,d-mcl-1033_leyibi2-n-1,d-mcl-1033_leyibi2-n-2,d-mcl-1033_leyibi2-n-3,d-mcl-84_cdn_domain_test-n-2,d-mcl-84_cdn_domain_test-n-1,d-mcl-84_cdn_domain_test-n-3,d-mcl-951_ilive_bill-n-1,d-mcl-951_ilive_bill-n-2,d-mcl-951_ilive_bill-n-3,d-mcl-915_ipserver1-n-1,d-mcl-915_ipserver1-n-2,d-mcl-915_ipserver1-n-3,d-mcl-1045_lantv-n-1,d-mcl-1045_lantv-n-3,d-mcl-1045_lantv-n-2,d-mcl-1048_mms-n-1,d-mcl-1048_mms-n-3,d-mcl-1048_mms-n-2,d-mcl-667_paycenter_kupai-n-3,d-mcl-667_paycenter_kupai-n-1,d-mcl-667_paycenter_kupai-n-2,d-mcl-667_payment_kupai-n-1,d-mcl-667_payment_kupai-n-2,d-mcl-667_payment_kupai-n-3,d-mcl-667_sdk_cms_kupai-n-1,d-mcl-667_sdk_cms_kupai-n-3,d-mcl-667_sdk_cms_kupai-n-2,d-mcl-985_user_address-n-3,d-mcl-985_user_address-n-2,d-mcl-985_user_address-n-1,d-mcl-1057_dd-n-2,d-mcl-1057_dd-n-3,d-mcl-1057_dd-n-1,d-mcl-234_tasktime-n-1,d-mcl-234_tasktime-n-2,d-mcl-234_tasktime-n-3,d-mcl-413_ims-n-3,d-mcl-413_ims-n-1,d-mcl-413_ims-n-2,d-mcl-1060_LeMSP-n-2,d-mcl-1060_LeMSP-n-1,d-mcl-1060_LeMSP-n-3,d-mcl-789_walle-n-2,d-mcl-789_walle-n-1,d-mcl-789_walle-n-3,d-mcl-1006_brandvip-n-1,d-mcl-1006_brandvip-n-3,d-mcl-1006_brandvip-n-2,d-mcl-515_sug_square-n-1,d-mcl-515_sug_square-n-2,d-mcl-515_sug_square-n-3,d-mcl-515_apkupgrade_cn-n-2,d-mcl-515_apkupgrade_cn-n-3,d-mcl-515_apkupgrade_cn-n-1,d-mcl-537_tv_report-n-3,d-mcl-537_tv_report-n-1,d-mcl-537_tv_report-n-2,d-mcl-875_bcloud_mjq03-n-1,d-mcl-875_bcloud_mjq03-n-3,d-mcl-875_bcloud_mjq03-n-2,d-mcl-259_store5-n-1,d-mcl-259_store5-n-3,d-mcl-259_store5-n-2,d-mcl-515_device_bind-n-1,d-mcl-515_device_bind-n-2,d-mcl-515_device_bind-n-3,d-mcl-1006_falcon-n-1,d-mcl-1006_falcon-n-2,d-mcl-1006_falcon-n-3,d-mcl-1006_evip-n-2,d-mcl-1006_evip-n-1,d-mcl-1006_evip-n-3,d-mcl-537_mstore_action-n-1,d-mcl-537_mstore_action-n-3,d-mcl-537_mstore_action-n-2,d-mcl-195_asmp-n-3,d-mcl-195_asmp-n-1,d-mcl-195_asmp-n-2,d-mcl-195_astv-n-1,d-mcl-195_astv-n-3,d-mcl-195_astv-n-2,d-mcl-852_match-n-3,d-mcl-852_match-n-1,d-mcl-852_match-n-2,d-mcl-537_ivvi_sso-n-1,d-mcl-537_ivvi_sso-n-2,d-mcl-537_ivvi_sso-n-3,d-mcl-537_ivvi_dev-n-1,d-mcl-537_ivvi_dev-n-2,d-mcl-537_ivvi_dev-n-3,d-mcl-259_store5_quartz-n-3,d-mcl-259_store5_quartz-n-2,d-mcl-259_store5_quartz-n-1,d-mcl-1081_csl_h5-n-1,d-mcl-1081_csl_h5-n-2,d-mcl-1081_csl_h5-n-3,d-mcl-1094_dsj21-n-1,d-mcl-1094_dsj21-n-3,d-mcl-1094_dsj21-n-2,d-mcl-1006_outsite-n-3,d-mcl-1006_outsite-n-1,d-mcl-1006_outsite-n-2,d-mcl-982_usergrowth_tv-n-1,d-mcl-982_usergrowth_tv-n-2,d-mcl-982_usergrowth_tv-n-3,d-mcl-413_falcon_links-n-1,d-mcl-413_falcon_links-n-2,d-mcl-413_falcon_links-n-3,d-mcl-1098_leeco_cn-n-2,d-mcl-1098_leeco_cn-n-1,d-mcl-1098_leeco_cn-n-3,d-mcl-537_ivvi_dev_guide-n-2,d-mcl-537_ivvi_dev_guide-n-3,d-mcl-537_ivvi_dev_guide-n-1,d-mcl-1006_smaug_bm-n-1,d-mcl-1006_smaug_bm-n-2,d-mcl-1006_smaug_bm-n-3,d-mcl-1006_outsite_bm-n-2,d-mcl-1006_outsite_bm-n-3,d-mcl-1006_outsite_bm-n-1,d-mcl-906_oi_log-n-3,d-mcl-906_oi_log-n-1,d-mcl-906_oi_log-n-2,d-mcl-992_fangtest-n-1,d-mcl-992_fangtest-n-2,d-mcl-992_fangtest-n-3,d-mcl-965_dts_dev-n-2,d-mcl-965_dts_dev-n-3,d-mcl-965_dts_dev-n-1,d-mcl-33_live_pds-n-1,d-mcl-33_live_pds-n-2,d-mcl-33_live_pds-n-3,d-mcl-33_mam_analyze-n-3,d-mcl-33_mam_analyze-n-1,d-mcl-33_mam_analyze-n-2",
+  "_id": "c84a838d09128315",
+  "starttime": "2016-10-17 15:30:00"
+}
+----
+
+[TIP]
+上述示例得到了升级马驹桥03集群RDS DATA 节点的TASK_ID为：c84a838d09128315。
+在马驹桥03物理集群中RDS DATA节点不变的情况下，可以一直复用此TASK_ID用于升级。
+若RDS集群发生了变化，则需要重新发起创建Task的请求，以从Matrix获取最新的节点信息。
+
+=== 3.5 执行部署任务
+升级VIP节点::
+用你喜欢的方式向URL `http://10.200.85.88:8000/taskrds/ca4f1f8e06cce1c8` 发起`POST`请求，无需传递额外参数。
+
+升级DATA节点::
+向URL `http://10.200.85.88:8000/taskrds/c84a838d09128315` 发起`POST`请求，无需传递额外参数。
+
+=== 3.6 统计任务执行结果
+按照上一小节的操作执行任务后，完成后会返回一个json对象，该对象的格式如下：
+[source, json]
+----
+{
+  "X_JOB_ID_1": {
+    "node_1": "value of job_1's result on node_1",
+    "node_n": "value of job_1's result on node_n",
+  },
+  "X_JOB_ID_2": {
+    "node_1": "value of job_2's result on node_1",
+    "node_n": "value of job_2's result on node_n",
+  }
+}
+----
+上述格式中X是指Job执行的批次，系统中默认一次并发执行30个节点。如马驹桥03中有57个RDS VIP节点个，
+则会分2批次执行VIP的升级任务，有171个DATA节点，则会分6次执行DATA节点升级任务。
+[IMPORTANT]
+每次并发执行Job的节点设置为30个为临时调整。根据salt-master服务的不同启动参数以及节点计算资源
+配置不同，到底这个并发数设置为多少合适，需要后续性能调优测试得出结果。
+
+在示例中创建的VIP升级任务中，有一个Job是检查已安装的mcluster版本，返回结果中会带有版本号，
+若每个节点的该Job返回值中都提示版本号为`0.2.2-5`(最新版本号)，则都升级成功。
+
+=== 3.7 失败重试
+执行任务后，可能会因网络不可达、salt-master失去响应，salt-minion服务中断等原因，导致Task执行失败。
+
+如果结果返回正常，只有个别节点执行不成功，则筛选出失败的节点重新创建一个任务执行即可。
+
+如果没有得到正常结果或较多数节点执行失败，确认salt-master和salt-minion都可正常通讯的情况下，
+重新发起执行请求即可。

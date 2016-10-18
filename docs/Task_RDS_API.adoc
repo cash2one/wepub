@@ -1,0 +1,132 @@
+:icons: font
+
+= RDS任务接口
+
+本接口与Task接口的基本功能完全一致，另对RDS容器节点的管理增加了支持，可以从Matrix获取
+指定物理机集群上的RDS容器信息。
+
+== 创建任务
+
+URL:: http://10.200.85.88:8000/taskrds
+HTTP Method:: POST
+Request Data Type:: json
+
+检查马驹桥03物理机集群中RDS vip节点的zabbix程序安装状态请求数据示例：
+[source, json]
+----
+{
+  "name": "check_zabbix_vip_MJQ_03",
+  "appid": "290d40ace3fe9f90",
+  "nodes": "",
+  "nodes_success": "",
+  "nodes_failed": "",
+  "jobs": "7f06abd2e48629da",
+  "status": "waiting",
+  "creator": "denglj",
+  "starttime": "2016-10-17 13:30:00",
+  "endtime": "",
+  "hclustername": "MJQ_03_Mcluster",
+  "containertype": "vip"
+}
+----
+
+Request Parameters Introduction::
+[cols="1,1,7", options="header"]
+|===
+|参数
+|是否必须
+|说明
+
+|name
+|是
+|任务名称
+
+|appid
+|是
+|任务需要安装的 application id，暂未校验该字段
+
+|nodes
+|是
+|执行任务的节点，saltstack minion id列表，*自动从Matrix获取*，传空字符串即可。
+
+|nodes_success
+|是
+|已执行成功的节点，默认传空字符串即可
+
+|nodes_failed
+|是
+|已执行失败的节点，默认传空字符串即可
+
+|jobs
+|是
+|作业 _id 按顺序组成的字符串，逗号分隔
+
+|status
+|是
+|任务状态，暂未使用，传值 `waiting` 即可。
+
+|creator
+|是
+|任务创建人
+
+|starttime
+|是
+|任务开始时间，原设计用于计划任务，现在暂不支持计划任务，传空值即可
+
+|endtime
+|是
+|任务结束时间，存储task执行结束的时间。
+|===
+
+Response::
+上述示例请求发出后，返回如下结果：
+[source, json]
+----
+{
+  "status": "waiting",
+  "endtime": "",
+  "jobs": "7f06abd2e48629da",
+  "name": "check_zabbix_vip_MJQ_03",
+  "creator": "denglj",
+  "timestamp": "2016-10-17 05:30:48.598631",
+  "nodes_failed": "",
+  "nodes_success": "",
+  "appid": "290d40ace3fe9f90",
+  "nodes": "d-gbl-779_zcq_test_mjq03_vip-n-1,d-gbl-413_test_me_vip-n-1,d-gbl-912_ExpConfig_vip-n-1,d-gbl-912_AbtestConfig_vip-n-1,d-gbl-993_rtmplive_slave01_vip-n-1,d-gbl-586_clivevrs_vip-n-1,d-gbl-586_clivevrstest_vip-n-1,d-gbl-978_lecamera_vip-n-1,d-gbl-33_mam_lsd_vip-n-1,d-gbl-1015_airflow_vip-n-1,d-gbl-84_cdn_domain_vip-n-1,d-gbl-991_spider_test_vip-n-1,d-gbl-1033_leyibi2_vip-n-1,d-gbl-84_cdn_domain_test_vip-n-1,d-gbl-951_ilive_bill_vip-n-1,d-gbl-915_ipserver1_vip-n-1,d-gbl-1045_lantv_vip-n-1,d-gbl-1048_mms_vip-n-1,d-gbl-667_paycenter_kupai_vip-n-1,d-gbl-667_payment_kupai_vip-n-1,d-gbl-667_sdk_cms_kupai_vip-n-1,d-gbl-985_user_address_vip-n-1,d-gbl-1057_dd_vip-n-1,d-gbl-234_tasktime_vip-n-1,d-gbl-413_ims_vip-n-1,d-gbl-1060_LeMSP_vip-n-1,d-gbl-789_walle_vip-n-1,d-gbl-1006_brandvip_vip-n-1,d-gbl-515_sug_square_vip-n-1,d-gbl-515_apkupgrade_cn_vip-n-1,d-gbl-537_tv_report_vip-n-1,d-gbl-875_bcloud_mjq03_vip-n-1,d-gbl-259_store5_vip-n-1,d-gbl-515_device_bind_vip-n-1,d-gbl-1006_falcon_vip-n-1,d-gbl-1006_evip_vip-n-1,d-gbl-537_mstore_action_vip-n-1,d-gbl-195_asmp_vip-n-1,d-gbl-195_astv_vip-n-1,d-gbl-852_match_vip-n-1,d-gbl-537_ivvi_sso_vip-n-1,d-gbl-537_ivvi_dev_vip-n-1,d-gbl-259_store5_quartz_vip-n-1,d-gbl-1081_csl_h5_vip-n-1,d-gbl-1094_dsj21_vip-n-1,d-gbl-1006_outsite_vip-n-1,d-gbl-982_usergrowth_tv_vip-n-1,d-gbl-413_falcon_links_vip-n-1,d-gbl-1098_leeco_cn_vip-n-1,d-gbl-537_ivvi_dev_guide_vip-n-1,d-gbl-1006_smaug_bm_vip-n-1,d-gbl-1006_outsite_bm_vip-n-1,d-gbl-906_oi_log_vip-n-1,d-gbl-992_fangtest_vip-n-1,d-gbl-965_dts_dev_vip-n-1,d-gbl-33_live_pds_vip-n-1,d-gbl-33_mam_analyze_vip-n-1",
+  "_id": "9c6652471d628685",
+  "starttime": "2016-10-17 13:30:00"
+}
+----
+
+返回的数据中，额外增加的字段说明如下：
+[cols="2,8", options="header"]
+|===
+|参数
+|说明
+
+|_id
+|任务在数据库中的唯一编号，如果创建任务的请求参数完全相同时，_id 号不会改变
+
+|timestamp
+|创建任务的时间戳
+|===
+
+== 执行已创建的任务
+URL:: http://10.200.85.88:8000/taskrds/TASK_ID
+HTTP Method:: POST
+
+[NOTE]
+====
+* 发送POST请求即可，无需传参。
+* 如果收到 `Salt master not responding` 错误，重新发起执行请求即可。
+* 如果收到 `minion error` 等错误，需要登录minion端确认salt-minion服务的状态是否正常。
+====
+
+== 获取已创建的任务
+* 获取所有任务
+URL:: http://10.200.85.88:8000/task
+HTTP Method:: GET
+
+* 获取指定任务
+URL:: http://10.200.85.88:8000/task/TASK_ID
+HTTP Method:: GET

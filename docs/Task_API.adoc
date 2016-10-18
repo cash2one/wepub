@@ -1,0 +1,119 @@
+:icons: font
+
+= 任务接口
+
+任务是为了在节点机器上完成一项工作而编排的作业序列。SaltStack执行完作业序列后，
+该工作任务即可完成。
+
+== 创建任务
+
+URL:: http://10.200.85.88:8000/task
+HTTP Method:: POST
+Request Data Type:: json
+
+安装 Mcluster-manager vip节点的任务请求数据示例：
+[source, json]
+----
+{
+  "name": "install_mcluster_vip_2",
+  "appid": "290d40ace3fe9f90",
+  "nodes": "d-gbl-339_mjq01_m_devop_vip-n-1,d-gbl-959_cms_test_vip-n-1,d-gbl-486_boss_online_vip-n-1",
+  "nodes_success": "",
+  "nodes_failed": "",
+  "jobs": "e09d25480944f374,8fe3ca224d8f7529,d2efc23aed961f42,3b5f5a4231c9ee9d",
+  "status": "waiting",
+  "creator": "denglj",
+  "starttime": "2016-09-29 06:30:00",
+  "endtime": ""
+}
+----
+
+Request Parameters Introduction::
+[cols="1,1,7", options="header"]
+|===
+|参数
+|是否必须
+|说明
+
+|name
+|是
+|任务名称
+
+|appid
+|是
+|任务需要安装的 application id，暂未校验该字段
+
+|nodes
+|是
+|执行任务的节点，saltstack minion id列表，逗号分隔的字符串
+
+|nodes_success
+|是
+|已执行成功的节点，默认传空字符串即可
+
+|nodes_failed
+|是
+|已执行失败的节点，默认传空字符串即可
+
+|jobs
+|是
+|作业 _id 按顺序组成的字符串，逗号分隔
+
+|status
+|是
+|任务状态，暂未使用，传值 `waiting` 即可。
+
+|creator
+|是
+|任务创建人
+
+|starttime
+|是
+|任务开始时间，原设计用于计划任务，现在暂不支持计划任务，传空值即可
+
+|endtime
+|是
+|任务结束时间，存储task执行结束的时间。
+|===
+
+Response::
+上述示例请求发出后，返回如下结果：
+[source, json]
+----
+{
+  "status": "waiting",
+  "endtime": "",
+  "jobs": "e09d25480944f374,8fe3ca224d8f7529,d2efc23aed961f42,3b5f5a4231c9ee9d",
+  "name": "install_mcluster_vip_2",
+  "creator": "denglj",
+  "timestamp": "2016-09-28 12:38:47.551299",
+  "nodes_failed": "",
+  "nodes_success": "",
+  "appid": "290d40ace3fe9f90",
+  "nodes": "d-gbl-339_mjq01_m_devop_vip-n-1,d-gbl-959_cms_test_vip-n-1,d-gbl-486_boss_online_vip-n-1",
+  "_id": "4fbb0e0201070313",
+  "starttime": "2016-09-29 06:30:00"
+}
+----
+
+返回的数据中，额外增加的字段说明如下：
+[cols="2,8", options="header"]
+|===
+|参数
+|说明
+
+|_id
+|任务在数据库中的唯一编号，如果创建任务的请求参数完全相同时，_id 号不会改变
+
+|timestamp
+|创建任务的时间戳
+|===
+
+== 获取已创建的任务
+* 获取所有任务
+URL:: http://10.200.85.88:8000/task
+HTTP Method:: GET
+
+* 获取指定任务
+URL:: http://10.200.85.88:8000/task/TASK_ID
+HTTP Method:: GET
