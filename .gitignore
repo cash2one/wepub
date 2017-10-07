@@ -41,3 +41,6 @@ celerybeat-schedule.db
 .coverage
 .tox
 .cache
+/.project
+/.pydevproject
+/.settings/
